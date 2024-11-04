@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #task-form,
+        #task-list {
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Task Manager</h1>
+    <div id="task-form">
+        <input type="text" id="task-name" placeholder="Task Name">
+        <input type="date" id="task-deadline">
+        <button onclick="createTask()">Add Task</button>
+    </div>
+    <div id="task-list"></div>
+    <script>
+        async function createTask() {
+            const taskName = document.getElementById('task-name').value;
+            const taskDeadline = document.getElementById('task-deadline').value;
+
+            const response = await fetch('http://localhost:3000/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: taskName,
+                    deadline: taskDeadline
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('Task created!');
+                displayTasks();
+            }
+        }
+
+        async function displayTasks() {
+            const response = await fetch('http://localhost:3000/tasks');
+            const tasks = await response.json();
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.textContent = `${task.name} - Due: ${task.deadline}`;
+                taskList.appendChild(taskElement);
+            });
+        }
+
+        window.onload = displayTasks;
+    </script>
+</body>
+
+</html>
